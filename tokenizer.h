@@ -2,6 +2,8 @@
 #define TOKENIZER_H
 
 #include "config.h"
+#include <stdexcept>
+#include <exception>
 
 namespace kiva {
     namespace parser {
