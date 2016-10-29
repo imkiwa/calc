@@ -13,7 +13,6 @@ int main(int argc, char *argv[])
     using namespace kiva::var;
     using namespace kiva::expression;
 
-    Var v = evalDirectly("((3+5*2)+3)/5+(-6)/4*2+3");
-    cout << v.as<Real>() << endl;
+    cout << evalDirectly("(0b110 & 0b010) * 6").as<Real>()<< endl;
     return 0;
 }

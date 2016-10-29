@@ -11,13 +11,21 @@ namespace kiva {
         {
             ID = 300,
             NUMBER,
+
+            OPERATOR,
             ADD,
             SUB,
             MUL,
             DIV,
             MOD,
-            POW,
+            XOR,
+            AND,
+            OR,
+            LSHF,
+            RSHF,
             NAV,
+            OPERATOR_END,
+
             TOKEN_COUNT
         };
 

@@ -14,6 +14,11 @@ namespace kiva {
         using namespace kiva::var;
         using namespace kiva::parser;
 
+        template <typename T>
+        static int castInt(const T &t) {
+            return static_cast<int>(t);
+        }
+
         void calcNumber2(std::stack<Real> &opds, int opt)
         {
             Real r = opds.top(); opds.pop();
@@ -33,11 +38,23 @@ namespace kiva {
                 case DIV:
                     res = l / r;
                     break;
-                case POW:
-                    res = std::pow(l, r);
+                case XOR:
+                    res = castInt(l) ^ castInt(r);
+                    break;
+                case AND:
+                    res = castInt(l) & castInt(r);
+                    break;
+                case OR:
+                    res = castInt(l) | castInt(r);
+                    break;
+                case LSHF:
+                    res = castInt(l) << castInt(r);
+                    break;
+                case RSHF:
+                    res = castInt(l) >> castInt(r);
                     break;
                 case MOD:
-                    res = static_cast<int>(l) % static_cast<int>(r);
+                    res = castInt(l) % castInt(r);
                     break;
             }
             opds.push(res);
@@ -46,18 +63,14 @@ namespace kiva {
         void calcNumber(std::stack<Real> &opds, int opt)
         {
             switch (opt) {
-                case ADD:
-                case SUB:
-                case MUL:
-                case DIV:
-                case POW:
-                case MOD:
-                    calcNumber2(opds, opt);
-                    return;
-                case NAV:
+                case NAV: {
                     Real n = opds.top(); opds.pop();
                     opds.push(-n);
-                    return;
+                    break;
+                }
+                default:
+                    calcNumber2(opds, opt);
+                    break;
             }
         }
 
@@ -70,10 +83,7 @@ namespace kiva {
             std::stack<int>  opts;
 
             while (tk.next(t)) {
-                if (t.token == ADD || t.token == SUB
-                        || t.token == MUL || t.token == DIV
-                        || t.token == MOD || t.token == POW
-                        || t.token == NAV) {
+                if (Operator::isOperatorToken(t.token)) {
                     if (opts.size() == 0) {
                         opts.push(t.token);
                     } else {
@@ -112,7 +122,6 @@ namespace kiva {
 
                 } else if (t.token == NUMBER) {
                     nums.push(t.numval);
-
                 }
             }
 

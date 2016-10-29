@@ -43,7 +43,7 @@ namespace kiva {
 
                 if (t.token >= '0' && t.token <= '9') {
                     Real token_val = t.token - '0';
-                    // 三种数字：十进制(123) 十六进制(0x123) 八进制(017)
+                    // 三种数字：十进制(123) 十六进制(0x123) 八进制(017) 二进制(0b11)
                     if (token_val > 0) {
                         // 10进制，以 [1-9] 开始
                         // 仅支持10进制数中出现小数点
@@ -83,6 +83,12 @@ namespace kiva {
                                             + (t.token & 15)
                                             + (t.token >= 'A' ? 9 : 0);
                                 t.token = *++src;
+                            }
+                        } else if (*src == 'b' || *src == 'B') {
+                            // 二进制
+                            src++;
+                            while (*src >= '0' && *src <= '1') {
+                                token_val = token_val * 2 + *src++ - '0';
                             }
                         } else {
                             // 八进制
@@ -130,8 +136,30 @@ namespace kiva {
                     return true;
 
                 } else if (t.token == '^') {
-                    t.token = POW;
+                    t.token = XOR;
                     return true;
+
+                } else if (t.token == '|') {
+                    t.token = OR;
+                    return true;
+
+                } else if (t.token == '&') {
+                    t.token = AND;
+                    return true;
+
+                } else if (t.token == '<') {
+                    if (*src == '<') {
+                        src++;
+                        t.token = LSHF;
+                        return true;
+                    }
+
+                } else if (t.token == '>') {
+                    if (*src == '>') {
+                        src++;
+                        t.token = RSHF;
+                        return true;
+                    }
 
                 } else if (t.token == '%') {
                     t.token = MOD;

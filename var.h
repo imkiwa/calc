@@ -90,7 +90,7 @@ namespace kiva {
             }
 
             template <typename T>
-            Holder<T>* safeCast() const
+            Holder<T>* safeCastHolder() const
             {
                 return mData ? dynamic_cast<Holder<T>*>(mData) : nullptr;
             }
@@ -141,7 +141,7 @@ namespace kiva {
                     return false;
                 }
 
-                const Holder<T> *p = safeCast<T>();
+                const Holder<T> *p = safeCastHolder<T>();
                 return p ? p->get() == t : false;
             }
 
@@ -163,7 +163,7 @@ namespace kiva {
                     throw std::runtime_error("Uncheckek object cast.");
                 }
 
-                Holder<T> *p = safeCast<T>();
+                Holder<T> *p = safeCastHolder<T>();
                 if (p) {
                     return p->get();
                 }
@@ -177,7 +177,7 @@ namespace kiva {
                     throw std::runtime_error("Uncheckek object cast.");
                 }
 
-                const Holder<T> *p = safeCast<T>();
+                const Holder<T> *p = safeCastHolder<T>();
                 if (p) {
                     return p->get();
                 }
