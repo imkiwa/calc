@@ -17,6 +17,7 @@ namespace kiva {
             VAR,      /* var */
             FUNCTION, /* function */
             RETURN,   /* return */
+            NATIVE,   /* native */
             KEYWORD_END,
 
             NUM_OPERATOR,
@@ -70,6 +71,7 @@ namespace kiva {
             Tokenizer(const String &src);
             ~Tokenizer();
 
+            const char* currentPosition() const;
             String duplicateFromHere() const;
             void skipUntil(int end);
             char peek() const;

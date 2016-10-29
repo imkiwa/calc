@@ -49,6 +49,11 @@ namespace kiva {
             return String(src);
         }
 
+        const char* Tokenizer::currentPosition() const
+        {
+            return src;
+        }
+
         bool Tokenizer::next(Token &t, bool peek)
         {
             using namespace std;
@@ -255,7 +260,8 @@ namespace kiva {
                            || t.token == '{'
                            || t.token == '}'
                            || t.token == '('
-                           || t.token == ')') {
+                           || t.token == ')'
+                           || t.token == ',') {
                     // 将这些符号当成标记
                     return true;
                 }

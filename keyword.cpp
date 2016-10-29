@@ -12,6 +12,8 @@ namespace kiva {
             return RETURN;
         } else if (token == "var") {
             return VAR;
+        } else if (token == "native") {
+            return NATIVE;
         }
         return -1;
     }

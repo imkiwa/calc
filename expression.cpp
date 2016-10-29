@@ -4,6 +4,7 @@
 #include "varscope.h"
 #include "operator.h"
 #include "tokenizer.h"
+#include "function.h"
 
 #include <cmath>
 #include <stack>
@@ -13,6 +14,7 @@ namespace kiva {
     namespace expression {
         using namespace kiva::var;
         using namespace kiva::parser;
+        using namespace kiva::function;
 
         template <typename T>
         static int castInt(const T &t)
@@ -191,7 +193,50 @@ namespace kiva {
                     lastId = t.strval;
                     if (tk.peekChar() == '(') {
                         // 函数
-                        throw std::runtime_error("Function not supported.");
+                        IFunction *func = FunctionTable::getFunction(lastId);
+                        if (!func) {
+                            throw std::runtime_error(String("Function '") + lastId + "' not found.");
+                        }
+
+                        tk.next(t); // '('
+                        std::vector<Var> args;
+                        int brackets = 1;
+
+                        const char *start = tk.currentPosition();
+                        const char *end;
+
+                        while (tk.next(t)) {
+                            if (t.token == '(') {
+                                ++brackets;
+                            } else if (t.token == ',' || t.token == ')') {
+                                // 对参数求值
+                                end = tk.currentPosition() - 1;
+                                String part(start, end - start);
+                                args.push_back(evalDirectly(part));
+                                start = tk.currentPosition();
+
+                                if (t.token == ')') {
+                                    --brackets;
+                                    if (brackets == 0) {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        Var retval = func->invoke(args, resultType);
+                        if (!retval.isValid()) {
+                            resultType = RESULT_NIL;
+                            return retval;
+                        }
+                        if (retval.getType() == typeid(Real)) {
+                            nums.push(retval.as<Real>());
+                            resultType = RESULT_NUMBER;
+
+                        } else if (retval.getType() == typeid(String)) {
+                            resultType = RESULT_STRING;
+                            return retval;
+                        }
 
                     } else {
                         // 变量
@@ -261,11 +306,97 @@ namespace kiva {
 
                 } else if (t.token == FUNCTION) {
                     resultType = RESULT_NONE;
+                    bool isDeclaration = false;
 
                     tk.next(t);
+                    if (t.token == NATIVE) {
+                        isDeclaration = true;
+                        tk.next(t);
+                    }
+
                     if (t.token != ID) {
                         throw std::runtime_error("Bad function name.");
                     }
+
+                    std::vector<String> params;
+                    String functionName = t.strval;
+
+                    // 解析参数
+                    while (tk.next(t)) {
+                        if (t.token == ')') {
+                            tk.match(t, ')');
+                            break;
+
+                        } else if (t.token == ID) {
+                            if (std::find(params.begin(), params.end(), t.strval) != params.end()) {
+                                throw std::runtime_error("Argument name cannot be the same.");
+                            }
+
+                            params.push_back(t.strval);
+                        }
+                    }
+
+                    IFunction *func = FunctionTable::getFunction(functionName);
+
+                    // 是声明，只记录
+                    if (t.token == ';') {
+                        // 如果函数表里含有该函数
+                        // 说明函数已经被记录了
+                        if (func) {
+                            continue;
+                        }
+                        isDeclaration = true;
+                        tk.match(t, ';');
+
+                    } else if (t.token == '{') {
+                        // 不是声明，如果函数表中含有
+                        // 则属于重复定义
+                        if (func) {
+                            throw std::runtime_error(String("Redefinition of '") + functionName + "'.");
+                        }
+                        // 如果是native函数，则不允许覆盖
+                        if (isDeclaration) {
+                            throw std::runtime_error("Re-writing a native function is not allowed.");
+                        }
+                    }
+
+                    // 到了这里，func 绝对是 nullptr
+                    func = new Function(functionName);
+
+                    for (const String &s : params) {
+                        func->addParam(s);
+                    }
+
+                    if (!isDeclaration) {
+                        // 设置body
+                        Function *localFunc = dynamic_cast<Function*>(func);
+                        if (!localFunc) {
+                            // 应该不会发生，除非太阳从西边出来
+                            throw std::runtime_error("Unexpected function object.");
+                        }
+
+                        int brackets = 1;
+                        const char *start = tk.currentPosition();
+                        const char *end;
+
+                        while (tk.next(t)) {
+                            if (t.token == '{') {
+                                ++brackets;
+                            } else if (t.token == '}') {
+                                --brackets;
+                                if (brackets == 0) {
+                                    end = tk.currentPosition() - 1;
+                                    break;
+                                }
+                            }
+                        }
+
+                        String body(start, end - start);
+                        tk.match(t, '}');
+                        localFunc->setBody(body);
+                    }
+
+                    FunctionTable::addFunction(func);
 
                 } else if (t.token == ';') {
                     // 一个表达式完毕，需要计算结果

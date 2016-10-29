@@ -21,7 +21,7 @@ namespace kiva {
         {
             static VarScope *global = nullptr;
             if (!global) {
-                global = new VarScope("::", nullptr);
+                global = new VarScope("global", nullptr);
                 getAllScopes().push(global);
             }
             return global;
@@ -29,7 +29,8 @@ namespace kiva {
 
         VarScope* VarScope::newScope(const String &name)
         {
-            VarScope *s = new VarScope(name, getCurrent());
+            VarScope *s = new VarScope(getCurrent()->getName() + "::" + name, getCurrent());
+            getAllScopes().push(s);
             return s;
         }
 
