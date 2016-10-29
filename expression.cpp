@@ -74,6 +74,15 @@ namespace kiva {
             }
         }
 
+        void calcFinalResult(std::stack<int> &opts, std::stack<Real> &nums)
+        {
+            while (opts.size() != 0) {
+                int opt = opts.top();
+                calcNumber(nums, opt);
+                opts.pop();
+            }
+        }
+
         Var evalDirectly(const String &str) throw(std::runtime_error)
         {
             Tokenizer tk(str);
@@ -81,6 +90,8 @@ namespace kiva {
 
             std::stack<Real> nums;
             std::stack<int>  opts;
+
+            String lastId;
 
             while (tk.next(t)) {
                 if (Operator::isOperatorToken(t.token)) {
@@ -122,15 +133,58 @@ namespace kiva {
 
                 } else if (t.token == NUMBER) {
                     nums.push(t.numval);
+
+                } else if (t.token == ID) {
+                    if (tk.peekChar() == '(') {
+                        // 函数
+                        throw std::runtime_error("Function not supported.");
+
+                    } else if (tk.peekChar() == '=') {
+                        // 赋值
+                        lastId = t.strval;
+
+                    } else {
+                        // 变量
+                        VarScope *current = VarScope::getCurrent();
+                        Var v = current->getVar(t.strval);
+                        if (v.getType() == typeid(Real)) {
+                            nums.push(v.as<Real>());
+                        } else {
+                            throw std::runtime_error("Unsupported variable type.");
+                        }
+                    }
+
+                } else if (t.token == ASSIGN) {
+                    if (lastId.empty()) {
+                        throw std::runtime_error("Variable name cannot be null.");
+                    }
+
+                    String rest = tk.duplicateFromHere();
+                    String::size_type pos = rest.find_first_of(';');
+
+                    bool restNotAll = pos != String::npos;
+                    if (restNotAll) {
+                        rest = rest.substr(0, pos);
+                        tk.skipUntil(';');
+                    }
+
+                    VarScope::getCurrent()->setVar(lastId, evalDirectly(rest));
+                    lastId.clear();
+
+                    // 整个赋值已经完毕，不会有其他结果
+                    if (!restNotAll) {
+                        return Var();
+                    }
+
+                } else if (t.token == ';') {
+                    // 一个表达式完毕，需要计算结果
+                    // 返回值暂时舍弃
+                    // TODO: return value
+                    calcFinalResult(opts, nums);
                 }
             }
 
-            while (opts.size() != 0) {
-                int opt = opts.top();
-                calcNumber(nums, opt);
-                opts.pop();
-            }
-
+            calcFinalResult(opts, nums);
             return nums.size() == 0 ? Var() : Var(nums.top());
         }
     }

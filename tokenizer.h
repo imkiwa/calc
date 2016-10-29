@@ -12,7 +12,7 @@ namespace kiva {
             ID = 300,
             NUMBER,
 
-            OPERATOR,
+            NUM_OPERATOR,
             ADD,
             SUB,
             MUL,
@@ -24,7 +24,9 @@ namespace kiva {
             LSHF,
             RSHF,
             NAV,
-            OPERATOR_END,
+            NUM_OPERATOR_END,
+
+            ASSIGN,
 
             TOKEN_COUNT
         };
@@ -43,13 +45,16 @@ namespace kiva {
             const char *src;
             const char *orig;
 
-            void skipUntil(int end);
             bool isIndentifierName(int token, bool first);
 
         public:
             Tokenizer(const String &src);
             ~Tokenizer();
 
+            String duplicateFromHere() const;
+            void skipUntil(int end);
+            char peek() const;
+            char peekChar() const;
             bool next(Token &token);
             void match(Token &t, int token) throw(std::runtime_error);
         };

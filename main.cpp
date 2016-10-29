@@ -13,6 +13,9 @@ int main(int argc, char *argv[])
     using namespace kiva::var;
     using namespace kiva::expression;
 
-    cout << evalDirectly("(0b110 & 0b010) * 6").as<Real>()<< endl;
+    Var v = evalDirectly("a=111*111; b = 999 - 111; a * b");
+    if (v.isValid()) {
+        printf("%lf\n", v.as<Real>());
+    }
     return 0;
 }

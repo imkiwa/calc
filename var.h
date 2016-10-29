@@ -156,6 +156,11 @@ namespace kiva {
                 return false;
             }
 
+            bool isValid() const
+            {
+                return mData && getType() != typeid(nullptr);
+            }
+
             template <typename T>
             T& as() throw(std::runtime_error)
             {

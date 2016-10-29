@@ -29,6 +29,25 @@ namespace kiva {
             return first ? is : (is || (token >= '0' && token <= '9'));
         }
 
+        char Tokenizer::peek() const
+        {
+            return *src;
+        }
+
+        char Tokenizer::peekChar() const
+        {
+            const char *p = src;
+            while (std::isspace(*p)) {
+                p++;
+            }
+            return *p;
+        }
+
+        String Tokenizer::duplicateFromHere() const
+        {
+            return String(src);
+        }
+
         bool Tokenizer::next(Token &t)
         {
             using namespace std;
@@ -163,6 +182,10 @@ namespace kiva {
 
                 } else if (t.token == '%') {
                     t.token = MOD;
+                    return true;
+
+                } else if (t.token == '=') {
+                    t.token = ASSIGN;
                     return true;
 
                 } else if (t.token == ';'

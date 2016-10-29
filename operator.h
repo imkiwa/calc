@@ -40,8 +40,8 @@ namespace kiva {
 
         static bool isOperatorToken(int token)
         {
-            return token > parser::TokenType::OPERATOR
-                    && token < parser::TokenType::OPERATOR_END;
+            return token > parser::TokenType::NUM_OPERATOR
+                    && token < parser::TokenType::NUM_OPERATOR_END;
         }
     };
 }
