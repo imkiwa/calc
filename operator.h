@@ -13,22 +13,36 @@ namespace kiva {
                 // 防止解析表达式时缺少括号导致结果不对
                 case '(':
                     return 1;
-                case XOR:
-                case AND:
-                case OR:
+                case LOR:
                     return 2;
+                case LAND:
+                    return 3;
+                case OR:
+                    return 4;
+                case XOR:
+                    return 5;
+                case AND:
+                    return 6;
+                case EQ:
+                case NEQ:
+                    return 7;
+                case LE:
+                case LT:
+                case GE:
+                case GT:
+                    return 8;
                 case LSHF:
                 case RSHF:
-                    return 3;
+                    return 9;
                 case ADD:
                 case SUB:
-                    return 4;
+                    return 10;
                 case MUL:
                 case DIV:
                 case MOD:
-                    return 5;
+                    return 11;
                 case NAV:
-                    return 6;
+                    return 32;
             }
             return 0;
         }

@@ -15,8 +15,15 @@ namespace kiva {
         using namespace kiva::parser;
 
         template <typename T>
-        static int castInt(const T &t) {
+        static int castInt(const T &t)
+        {
             return static_cast<int>(t);
+        }
+
+        bool realEquals(Real a, Real b)
+        {
+            static Real W = 0.000001;
+            return std::abs(a - b) <= W;
         }
 
         void calcNumber2(std::stack<Real> &opds, int opt)
@@ -56,6 +63,30 @@ namespace kiva {
                 case MOD:
                     res = castInt(l) % castInt(r);
                     break;
+                case LAND:
+                    res = castInt(l) && castInt(r);
+                    break;
+                case LOR:
+                    res = castInt(l) || castInt(r);
+                    break;
+                case LE:
+                    res = l <= r;
+                    break;
+                case LT:
+                    res = l < r;
+                    break;
+                case GE:
+                    res = l >= r;
+                    break;
+                case GT:
+                    res = l > r;
+                    break;
+                case EQ:
+                    res = realEquals(l, r);
+                    break;
+                case NEQ:
+                    res = !realEquals(l, r);
+                    break;
             }
             opds.push(res);
         }
@@ -66,6 +97,11 @@ namespace kiva {
                 case NAV: {
                     Real n = opds.top(); opds.pop();
                     opds.push(-n);
+                    break;
+                }
+                case NOT: {
+                    Real n = opds.top(); opds.pop();
+                    opds.push(!castInt(n));
                     break;
                 }
                 default:

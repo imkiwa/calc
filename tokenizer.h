@@ -13,17 +13,26 @@ namespace kiva {
             NUMBER,
 
             NUM_OPERATOR,
-            ADD,
-            SUB,
-            MUL,
-            DIV,
-            MOD,
-            XOR,
-            AND,
-            OR,
-            LSHF,
-            RSHF,
-            NAV,
+            ADD,  /* + */
+            SUB,  /* - */
+            MUL,  /* * */
+            DIV,  /* / */
+            MOD,  /* % */
+            XOR,  /* ^ */
+            AND,  /* & */
+            OR,   /* | */
+            LSHF, /* << */
+            RSHF, /* >> */
+            LAND, /* && */
+            LOR,  /* || */
+            LE,   /* <= */
+            LT,   /* < */
+            GE,   /* >= */
+            GT,   /* > */
+            EQ,   /* == */
+            NEQ,  /* != */
+            NOT,  /* ! */
+            NAV,  /* - (负号) */
             NUM_OPERATOR_END,
 
             ASSIGN,

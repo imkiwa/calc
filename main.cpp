@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     using namespace kiva::var;
     using namespace kiva::expression;
 
-    Var v = evalDirectly("a=111*111; b = 999 - 111; a * b");
+    Var v = evalDirectly("a=1; b=2; c=3; (b > c || b > a || c > a) && b - a < c");
     if (v.isValid()) {
         printf("%lf\n", v.as<Real>());
     }

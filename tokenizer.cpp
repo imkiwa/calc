@@ -159,33 +159,73 @@ namespace kiva {
                     return true;
 
                 } else if (t.token == '|') {
-                    t.token = OR;
+                    // || 或 |
+                    if (*src == '|') {
+                        src++;
+                        t.token = LOR;
+                    } else {
+                        t.token = OR;
+                    }
                     return true;
 
                 } else if (t.token == '&') {
-                    t.token = AND;
+                    // && 或 &
+                    if (*src == '&') {
+                        src++;
+                        t.token = LAND;
+                    } else {
+                        t.token = AND;
+                    }
                     return true;
 
                 } else if (t.token == '<') {
+                    // << 或 <= 或 <
                     if (*src == '<') {
                         src++;
                         t.token = LSHF;
-                        return true;
+                    } else if (*src == '=') {
+                        src++;
+                        t.token = LE;
+                    } else {
+                        t.token = LT;
                     }
+                    return true;
 
                 } else if (t.token == '>') {
+                    // >> 或 >= 或 >
                     if (*src == '>') {
                         src++;
                         t.token = RSHF;
-                        return true;
+                    } else if (*src == '=') {
+                        src++;
+                        t.token = GE;
+                    } else {
+                        t.token = GT;
                     }
+                    return true;
 
                 } else if (t.token == '%') {
                     t.token = MOD;
                     return true;
 
                 } else if (t.token == '=') {
-                    t.token = ASSIGN;
+                    // = 或 ==
+                    if (*src == '=') {
+                        src++;
+                        t.token = EQ;
+                    } else {
+                        t.token = ASSIGN;
+                    }
+                    return true;
+
+                } else if (t.token == '!') {
+                    // ! 或 !=
+                    if (*src == '=') {
+                        src++;
+                        t.token = NEQ;
+                    } else {
+                        t.token = NOT;
+                    }
                     return true;
 
                 } else if (t.token == ';'
