@@ -130,6 +130,23 @@ namespace kiva {
                     t.token = ID;
                     return true;
 
+                } else if (t.token == '"') {
+                    size_t count = 0;
+                    const char *start = src;
+                    while (*src && *src != t.token) {
+                        if (*src == '\\') {
+                            ++src;
+                        }
+                        ++count;
+                        ++src;
+                    }
+                    // 跳过结尾的引号
+                    src++;
+
+                    t.token = STRING;
+                    t.strval = String(start, count);
+                    return true;
+
                 } else if (t.token == '+') {
                     t.token = ADD;
                     return true;

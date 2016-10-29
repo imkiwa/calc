@@ -11,7 +11,13 @@ namespace kiva {
     namespace expression {
         using namespace kiva::var;
 
+        enum ResultType
+        {
+            RESULT_NIL, RESULT_BOOL, RESULT_NUMBER, RESULT_STRING,
+        };
+
         Var evalDirectly(const String &str) throw(std::runtime_error);
+        Var evalDirectly(const String &str, int &resultType) throw(std::runtime_error);
     }
 }
 

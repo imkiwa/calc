@@ -11,10 +11,12 @@ namespace kiva {
         {
             ID = 300,
             NUMBER,
+            STRING,
 
             NUM_OPERATOR,
             ADD,  /* + */
             SUB,  /* - */
+            NAV,  /* - (负号) */
             MUL,  /* * */
             DIV,  /* / */
             MOD,  /* % */
@@ -23,6 +25,9 @@ namespace kiva {
             OR,   /* | */
             LSHF, /* << */
             RSHF, /* >> */
+            NUM_OPERATOR_END,
+
+            LOGICAL_OPERATOR,
             LAND, /* && */
             LOR,  /* || */
             LE,   /* <= */
@@ -32,8 +37,7 @@ namespace kiva {
             EQ,   /* == */
             NEQ,  /* != */
             NOT,  /* ! */
-            NAV,  /* - (负号) */
-            NUM_OPERATOR_END,
+            LOGICAL_OPERATOR_END,
 
             ASSIGN,
 

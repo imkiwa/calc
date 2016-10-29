@@ -54,8 +54,19 @@ namespace kiva {
 
         static bool isOperatorToken(int token)
         {
+            return isNumericalOperatorToken(token) || isLogicalOperatorToken(token);
+        }
+
+        static bool isNumericalOperatorToken(int token)
+        {
             return token > parser::TokenType::NUM_OPERATOR
-                    && token < parser::TokenType::NUM_OPERATOR_END;
+                                && token < parser::TokenType::NUM_OPERATOR_END;
+        }
+
+        static bool isLogicalOperatorToken(int token)
+        {
+            return token > parser::TokenType::LOGICAL_OPERATOR
+                                && token < parser::TokenType::LOGICAL_OPERATOR_END;
         }
     };
 }

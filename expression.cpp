@@ -121,16 +121,28 @@ namespace kiva {
 
         Var evalDirectly(const String &str) throw(std::runtime_error)
         {
+            int i;
+            return evalDirectly(str, i);
+        }
+
+        Var evalDirectly(const String &str, int &resultType) throw(std::runtime_error)
+        {
             Tokenizer tk(str);
             Token t;
 
             std::stack<Real> nums;
             std::stack<int>  opts;
 
+            Var result;
+            resultType = RESULT_NIL;
             String lastId;
 
             while (tk.next(t)) {
                 if (Operator::isOperatorToken(t.token)) {
+                    resultType = Operator::isLogicalOperatorToken(t.token)
+                                 ? RESULT_BOOL
+                                 : RESULT_NUMBER;
+
                     if (opts.size() == 0) {
                         opts.push(t.token);
                     } else {
@@ -168,7 +180,12 @@ namespace kiva {
                     opts.pop();
 
                 } else if (t.token == NUMBER) {
+                    resultType = RESULT_NUMBER;
                     nums.push(t.numval);
+
+                } else if (t.token == STRING) {
+                    resultType = RESULT_STRING;
+                    return Var(t.strval);
 
                 } else if (t.token == ID) {
                     if (tk.peekChar() == '(') {
@@ -185,6 +202,12 @@ namespace kiva {
                         Var v = current->getVar(t.strval);
                         if (v.getType() == typeid(Real)) {
                             nums.push(v.as<Real>());
+                            resultType = RESULT_NUMBER;
+
+                        } else if (v.getType() == typeid(String)) {
+                            resultType = RESULT_STRING;
+                            return v;
+
                         } else {
                             throw std::runtime_error("Unsupported variable type.");
                         }
@@ -209,6 +232,7 @@ namespace kiva {
 
                     // 整个赋值已经完毕，不会有其他结果
                     if (!restNotAll) {
+                        resultType = RESULT_NIL;
                         return Var();
                     }
 
@@ -221,7 +245,10 @@ namespace kiva {
             }
 
             calcFinalResult(opts, nums);
-            return nums.size() == 0 ? Var() : Var(nums.top());
+            if (resultType == RESULT_NUMBER || resultType == RESULT_BOOL) {
+                result = nums.size() == 0 ? 0 : nums.top();
+            }
+            return result;
         }
     }
 }
