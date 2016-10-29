@@ -22,19 +22,21 @@ int main(int argc, char *argv[])
         std::getline(std::cin, s);
         try {
             v = evalDirectly(s, resultType);
-            if (resultType != RESULT_NIL && v.isValid()) {
-                switch (resultType) {
-                    case RESULT_BOOL:
-                        printf("@: %s\n", v.as<Real>() == 0 ? "false" : "true");
-                        break;
-                    case RESULT_NUMBER:
-                        printf("@: %lf\n", v.as<Real>());
-                        break;
-                    case RESULT_STRING:
-                        printf("@: %s\n", v.as<String>().c_str());
-                        break;
-                }
+            switch (resultType) {
+                case RESULT_BOOL:
+                    printf("@: %s\n", v.as<Real>() == 0 ? "false" : "true");
+                    break;
+                case RESULT_NUMBER:
+                    printf("@: %.2lf\n", v.as<Real>());
+                    break;
+                case RESULT_STRING:
+                    printf("@: %s\n", v.as<String>().c_str());
+                    break;
+                case RESULT_NIL:
+                    printf("<null>\n");
+                    break;
             }
+
 
         } catch (std::exception &e) {
             printf("!: %s\n", e.what());

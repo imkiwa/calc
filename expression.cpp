@@ -110,12 +110,16 @@ namespace kiva {
             }
         }
 
-        void calcFinalResult(std::stack<int> &opts, std::stack<Real> &nums)
+        void calcFinalResult(std::stack<int> &opts, std::stack<Real> &nums, int &resultType)
         {
             while (opts.size() != 0) {
                 int opt = opts.top();
                 calcNumber(nums, opt);
                 opts.pop();
+
+                resultType = Operator::isLogicalOperatorToken(opt)
+                             ? RESULT_BOOL
+                             : RESULT_NUMBER;
             }
         }
 
@@ -134,15 +138,11 @@ namespace kiva {
             std::stack<int>  opts;
 
             Var result;
-            resultType = RESULT_NIL;
+            resultType = RESULT_NONE;
             String lastId;
 
             while (tk.next(t)) {
                 if (Operator::isOperatorToken(t.token)) {
-                    resultType = Operator::isLogicalOperatorToken(t.token)
-                                 ? RESULT_BOOL
-                                 : RESULT_NUMBER;
-
                     if (opts.size() == 0) {
                         opts.push(t.token);
                     } else {
@@ -188,18 +188,25 @@ namespace kiva {
                     return Var(t.strval);
 
                 } else if (t.token == ID) {
+                    lastId = t.strval;
                     if (tk.peekChar() == '(') {
                         // 函数
                         throw std::runtime_error("Function not supported.");
 
-                    } else if (tk.peekChar() == '=') {
-                        // 赋值
-                        lastId = t.strval;
-
                     } else {
                         // 变量
+                        Token peek;
+                        if (tk.next(peek, true) && peek.token == ASSIGN) {
+                            continue;
+                        }
+
                         VarScope *current = VarScope::getCurrent();
                         Var v = current->getVar(t.strval);
+                        if (!v.isValid()) {
+                            resultType = RESULT_NIL;
+                            return v;
+                        }
+
                         if (v.getType() == typeid(Real)) {
                             nums.push(v.as<Real>());
                             resultType = RESULT_NUMBER;
@@ -232,19 +239,44 @@ namespace kiva {
 
                     // 整个赋值已经完毕，不会有其他结果
                     if (!restNotAll) {
-                        resultType = RESULT_NIL;
+                        resultType = RESULT_NONE;
                         return Var();
+                    }
+
+                } else if (t.token == VAR) {
+                    resultType = RESULT_NONE;
+
+                    tk.next(t);
+                    if (t.token != ID) {
+                        throw std::runtime_error("Bad variable name.");
+                    }
+
+                    VarScope *s = VarScope::getCurrent();
+                    if (s->contains(t.strval)) {
+                        throw std::runtime_error(String("Redefinition of '") + t.strval + "'.");
+                    }
+
+                    s->setVar(t.strval, Var());
+                    lastId = t.strval;
+
+                } else if (t.token == FUNCTION) {
+                    resultType = RESULT_NONE;
+
+                    tk.next(t);
+                    if (t.token != ID) {
+                        throw std::runtime_error("Bad function name.");
                     }
 
                 } else if (t.token == ';') {
                     // 一个表达式完毕，需要计算结果
                     // 返回值暂时舍弃
                     // TODO: return value
-                    calcFinalResult(opts, nums);
+                    calcFinalResult(opts, nums, resultType);
+                    lastId.clear();
                 }
             }
 
-            calcFinalResult(opts, nums);
+            calcFinalResult(opts, nums, resultType);
             if (resultType == RESULT_NUMBER || resultType == RESULT_BOOL) {
                 result = nums.size() == 0 ? 0 : nums.top();
             }

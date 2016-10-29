@@ -75,7 +75,7 @@ namespace kiva {
             }
 
             if (!mParent) {
-                throw std::runtime_error(String("Variable '") + name + "'' not found");
+                throw std::runtime_error(String("Variable '") + name + "' not found");
             }
 
             return mParent->getVar(name);

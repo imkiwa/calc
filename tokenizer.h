@@ -13,6 +13,12 @@ namespace kiva {
             NUMBER,
             STRING,
 
+            KEYWORD,
+            VAR,      /* var */
+            FUNCTION, /* function */
+            RETURN,   /* return */
+            KEYWORD_END,
+
             NUM_OPERATOR,
             ADD,  /* + */
             SUB,  /* - */
@@ -68,7 +74,7 @@ namespace kiva {
             void skipUntil(int end);
             char peek() const;
             char peekChar() const;
-            bool next(Token &token);
+            bool next(Token &token, bool peek = false);
             void match(Token &t, int token) throw(std::runtime_error);
         };
 

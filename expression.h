@@ -13,7 +13,7 @@ namespace kiva {
 
         enum ResultType
         {
-            RESULT_NIL, RESULT_BOOL, RESULT_NUMBER, RESULT_STRING,
+            RESULT_NONE, RESULT_NIL, RESULT_BOOL, RESULT_NUMBER, RESULT_STRING,
         };
 
         Var evalDirectly(const String &str) throw(std::runtime_error);

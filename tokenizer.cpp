@@ -1,5 +1,6 @@
 #include "tokenizer.h"
 #include "operator.h"
+#include "keyword.h"
 #include <cctype>
 
 namespace kiva {
@@ -48,12 +49,15 @@ namespace kiva {
             return String(src);
         }
 
-        bool Tokenizer::next(Token &t)
+        bool Tokenizer::next(Token &t, bool peek)
         {
             using namespace std;
             t.strval.clear();
             t.numval = 0;
             t.token = 0;
+
+            const char *peekSrc = src;
+            const char *&src = peek ? peekSrc : this->src;
 
             while ((t.token = *src++)) {
                 if (isspace(t.token)) {
@@ -62,7 +66,7 @@ namespace kiva {
 
                 if (t.token >= '0' && t.token <= '9') {
                     Real token_val = t.token - '0';
-                    // 三种数字：十进制(123) 十六进制(0x123) 八进制(017) 二进制(0b11)
+                    // 四种数字：十进制(123) 十六进制(0x123) 八进制(017) 二进制(0b11)
                     if (token_val > 0) {
                         // 10进制，以 [1-9] 开始
                         // 仅支持10进制数中出现小数点
@@ -127,7 +131,8 @@ namespace kiva {
                         t.strval += *src++;
                     }
 
-                    t.token = ID;
+                    int kw = Keyword::constantify(t.strval);
+                    t.token = kw == -1 ? ID : kw;
                     return true;
 
                 } else if (t.token == '"') {
@@ -136,6 +141,7 @@ namespace kiva {
                     while (*src && *src != t.token) {
                         if (*src == '\\') {
                             ++src;
+                            ++count;
                         }
                         ++count;
                         ++src;
