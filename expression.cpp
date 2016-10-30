@@ -6,6 +6,7 @@
 #include "tokenizer.h"
 #include "function.h"
 
+#include <algorithm>
 #include <cmath>
 #include <stack>
 #include <cctype>
@@ -203,25 +204,28 @@ namespace kiva {
                         int brackets = 1;
 
                         const char *start = tk.currentPosition();
-                        const char *end;
 
                         while (tk.next(t)) {
                             if (t.token == '(') {
                                 ++brackets;
-                            } else if (t.token == ',' || t.token == ')') {
+                            } else if (t.token == ',' && brackets == 1) {
                                 // 对参数求值
-                                end = tk.currentPosition() - 1;
-                                String part(start, end - start);
+																String part(start, tk.currentPosition() - start - 1);
+																printf("eval part [%s]\n", part.c_str());
                                 args.push_back(evalDirectly(part));
                                 start = tk.currentPosition();
 
-                                if (t.token == ')') {
-                                    --brackets;
-                                    if (brackets == 0) {
-                                        break;
-                                    }
-                                }
-                            }
+                            } else if (t.token == ')') {
+                                --brackets;
+                                if (brackets == 0) {
+																	  String part(start, tk.currentPosition() - start - 1);
+																		printf("eval part [%s]\n", part.c_str());
+
+																		args.push_back(evalDirectly(part));
+                                    break;
+																}
+														}
+
                         }
 
                         Var retval = func->invoke(args, resultType);
