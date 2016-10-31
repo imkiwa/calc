@@ -211,7 +211,6 @@ namespace kiva {
                             } else if (t.token == ',' && brackets == 1) {
                                 // 对参数求值
 																String part(start, tk.currentPosition() - start - 1);
-																printf("eval part [%s]\n", part.c_str());
                                 args.push_back(evalDirectly(part));
                                 start = tk.currentPosition();
 
@@ -219,7 +218,6 @@ namespace kiva {
                                 --brackets;
                                 if (brackets == 0) {
 																	  String part(start, tk.currentPosition() - start - 1);
-																		printf("eval part [%s]\n", part.c_str());
 
 																		args.push_back(evalDirectly(part));
                                     break;
