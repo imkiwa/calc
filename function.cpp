@@ -41,6 +41,17 @@ namespace kiva {
             f[function->getName()] = function;
         }
 
+        void FunctionTable::linkFunction(const String &name,
+                          const Callable &callable)
+        {
+            if (contains(name)) {
+                return;
+            }
+
+            IFunction *f = new NativeFunction(name, callable);
+            addFunction(f);
+        }
+
         Function::Function(const String &name)
             :mName(name)
         {}
@@ -53,21 +64,37 @@ namespace kiva {
             :mName(other.mName), mBody(other.mBody), mParams(other.mParams)
         {}
 
-        Var Function::invoke(const std::vector<Var> &vars, int &resultType) throw(std::runtime_error)
+        Var Function::invoke(const Args &args, int &resultType) throw(std::runtime_error)
         {
             using namespace var;
-            if (vars.size() != mParams.size()) {
+            if (args.size() != getParamCount()) {
                 throw std::runtime_error("Arguments count doesn't match.");
             }
 
             VarScope *scope = VarScope::newScope(getName());
             for (int i = 0; i < mParams.size(); ++i) {
-                scope->setVar(mParams[i], vars[i]);
+                scope->setVar(mParams[i], args[i]);
             }
 
             Var v = kiva::expression::evalDirectly(mBody, resultType);
             VarScope::removeTop();
             return v;
+        }
+
+        NativeFunction::NativeFunction(const String &name)
+            :mName(name)
+        {
+        }
+
+        NativeFunction::NativeFunction(const String &name,
+                                       const Callable &callable)
+            :mName(name), mCallable(callable)
+        {
+        }
+
+        NativeFunction::NativeFunction(const NativeFunction &other)
+            :mName(other.mName), mCallable(other.mCallable)
+        {
         }
     }
 }

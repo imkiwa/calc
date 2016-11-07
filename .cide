@@ -1,0 +1,1 @@
+{"append":[],"appendChanged":false,"build_mode":"auto","cflags":"","ldflags":"","mode":"Console","output_bin":"","run_mode":0,"shell_cleanup":"make clean","shell_command":"make CC\u003d\"$CC\" CXX\u003d\"$CXX\" SHELL\u003d\"$SHELL\" OUTPUT\u003d\"(c4droid:BIN)\""}

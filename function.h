@@ -12,6 +12,10 @@ namespace kiva {
     namespace function {
         using namespace var;
 
+        typedef std::vector<Var> Args;
+
+        typedef std::function<Var(const Args &, int &)> Callable;
+
         class IFunction
         {
         public:
@@ -19,10 +23,8 @@ namespace kiva {
             virtual ~IFunction() = default;
 
             virtual bool isNative() const = 0;
-            virtual void addParam(const String &name) = 0;
-            virtual int getParamCount() const = 0;
             virtual const String& getName() const = 0;
-            virtual Var invoke(const std::vector<Var> &vars, int &resultType) throw(std::runtime_error) = 0;
+            virtual Var invoke(const Args &args, int &resultType) throw(std::runtime_error) = 0;
         };
 
         class FunctionTable
@@ -31,6 +33,7 @@ namespace kiva {
             static bool contains(const String &name);
             static IFunction* getFunction(const String &name);
             static void addFunction(IFunction *function);
+            static void linkFunction(const String &name, const Callable &callable);
         };
 
         class Function : public IFunction
@@ -48,16 +51,18 @@ namespace kiva {
 
             virtual ~Function() = default;
 
-            virtual void addParam(const String &name) override
-            {
-                mParams.push_back(name);
-            }
+            virtual Var invoke(
+                const Args &args,
+                int &resultType) throw(std::runtime_error) override;
 
-            virtual Var invoke(const std::vector<Var> &vars, int &resultType) throw(std::runtime_error) override;
-
-            virtual int getParamCount() const override
+            int getParamCount() const
             {
                 return mParams.size();
+            }
+            
+            void addParam(const String &name)
+            {
+                mParams.push_back(name);
             }
 
             void setBody(const String &body)
@@ -79,7 +84,38 @@ namespace kiva {
 
         class NativeFunction : public IFunction
         {
+        private:
+            String mName;
+            Callable mCallable;
+
+        public:
+            NativeFunction() = default;
+            NativeFunction(const String &name);
+            NativeFunction(const String &name, const Callable &callable);
+            NativeFunction(const NativeFunction &other);
+
+            virtual ~NativeFunction() = default;
+
+            virtual Var invoke(
+                const Args &args,
+                int &resultType) throw(std::runtime_error) override
+            {
+                return mCallable ? mCallable(args, resultType)
+                                 : Var();
+            }
+
+            virtual const String& getName() const override
+            {
+                return mName;
+            }
+
+            virtual bool isNative() const override
+            {
+                return true;
+            }
         };
+        
+        
     }
 }
 
