@@ -7,9 +7,9 @@
 #include "var.h"
 #include "varscope.h"
 
-#define FARGS const Args &__a, int &__rt
 #define FARG __a
 #define FRT __rt
+#define FARGS const Args &FARG, int &FRT
 #define FRETURN_VOID                         \
     {                                        \
         FRT = kiva::expression::RESULT_NONE; \
