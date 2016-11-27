@@ -40,8 +40,44 @@ int main(int argc, char *argv[])
         FRETURN_VOID;
     });
 
-    F::linkFunction("__android", [](FARGS) {
-        printf("hello world\n");
+    F::linkFunction("table", [](FARGS) {
+        IFunction *func = nullptr;
+        int start = 0;
+        int end = 10;
+        int step = 1;
+
+        switch (FARG.size()) {
+            case 4:
+                step = static_cast<int>(FARG[3].as<Real>());
+            case 3:
+                end = static_cast<int>(FARG[2].as<Real>());
+            case 2:
+                start = static_cast<int>(FARG[1].as<Real>());
+            case 1:
+                func = F::getFunction(FARG[0].as<String>());
+                break;
+
+            default:
+                throw std::runtime_error("Too few arguments");
+                FRETURN_VOID;
+        }
+
+        if (!func) {
+            throw std::runtime_error("Function not found");
+        }
+
+        printf("Function %s\n", func->getName().c_str());
+
+        std::vector<Var> args;
+        args.push_back(Var(start));
+        int resultType;
+
+        for (; start <= end; start += step) {
+            args[0] = Var(static_cast<Real>(start));
+            printf("    x = %3d, y = %lf\n", start,
+                   func->invoke(args, resultType).as<Real>());
+        }
+
         FRETURN_VOID;
     });
 

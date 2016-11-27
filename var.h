@@ -179,7 +179,7 @@ namespace kiva {
             const T& as() const throw(std::runtime_error)
             {
                 if (getType() != typeid(T)) {
-                    throw std::runtime_error("Uncheckek object cast.");
+                    throw std::runtime_error("Unchecked object cast.");
                 }
 
                 const Holder<T> *p = safeCastHolder<T>();
